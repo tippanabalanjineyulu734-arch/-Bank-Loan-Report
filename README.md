@@ -1,241 +1,180 @@
-BANK LOAN REPORT QUERY DOCUMENT
-A.	BANK LOAN REPORT | SUMMARY
-KPI’s:
-Total Loan Applications
-SELECT COUNT(id) AS Total_Applications FROM bank_loan_data
- 
-MTD Loan Applications
-SELECT COUNT(id) AS Total_Applications FROM bank_loan_data
-WHERE MONTH(issue_date) = 12
- 
-PMTD Loan Applications
-SELECT COUNT(id) AS Total_Applications FROM bank_loan_data
-WHERE MONTH(issue_date) = 11
- 
-
-Total Funded Amount
-SELECT SUM(loan_amount) AS Total_Funded_Amount FROM bank_loan_data
- 
-MTD Total Funded Amount
-SELECT SUM(loan_amount) AS Total_Funded_Amount FROM bank_loan_data
-WHERE MONTH(issue_date) = 12
- 
-PMTD Total Funded Amount
-SELECT SUM(loan_amount) AS Total_Funded_Amount FROM bank_loan_data
-WHERE MONTH(issue_date) = 11
- 
 
 
-Total Amount Received
-SELECT SUM(total_payment) AS Total_Amount_Collected FROM bank_loan_data
- 
-MTD Total Amount Received
-SELECT SUM(total_payment) AS Total_Amount_Collected FROM bank_loan_data
-WHERE MONTH(issue_date) = 12
- 
-PMTD Total Amount Received
-SELECT SUM(total_payment) AS Total_Amount_Collected FROM bank_loan_data
-WHERE MONTH(issue_date) = 11
- 
+# 🏦 Bank Loan Report – SQL KPI Framework & Dashboard Integration
 
-Average Interest Rate
-SELECT AVG(int_rate)*100 AS Avg_Int_Rate FROM bank_loan_data
- 
-MTD Average Interest
-SELECT AVG(int_rate)*100 AS MTD_Avg_Int_Rate FROM bank_loan_data
-WHERE MONTH(issue_date) = 12
- 
-PMTD Average Interest
-SELECT AVG(int_rate)*100 AS PMTD_Avg_Int_Rate FROM bank_loan_data
-WHERE MONTH(issue_date) = 11
- 
+## 📌 Project Title
+**Bank Loan Report – KPI Tracking, Loan Segmentation & BI Dashboard Integration**
 
+## 🧰 Tools Used
+- **SQL** – for KPI extraction, segmentation logic, and query optimization  
+- **Power BI** – for dynamic dashboards and stakeholder-ready visuals  
+- **Excel Automation** – for reporting workflows and MTD/PMTD comparisons  
+- **Python (pandas)** – for data preprocessing and automation  
+- **GitHub** – for version control and documentation  
 
+## 🧠 Project Context
+This project simulates a real-world loan analytics dashboard for a financial institution. It includes over 30 modular SQL queries designed to track key performance indicators, segment loan statuses, and support interactive BI dashboards. The queries are structured to support MTD/PMTD analysis, good vs. bad loan classification, and dimensional breakdowns by month, state, term, and borrower attributes.
 
+---
 
+## 📊 Summary KPIs
 
-Avg DTI
-SELECT AVG(dti)*100 AS Avg_DTI FROM bank_loan_data
- 
-MTD Avg DTI
-SELECT AVG(dti)*100 AS MTD_Avg_DTI FROM bank_loan_data
-WHERE MONTH(issue_date) = 12
- 
-PMTD Avg DTI
-SELECT AVG(dti)*100 AS PMTD_Avg_DTI FROM bank_loan_data
-WHERE MONTH(issue_date) = 11
- 
+- **Total Loan Applications**
+  ```sql
+  SELECT COUNT(id) AS Total_Applications FROM bank_loan_data
+  ```
 
+- **MTD / PMTD Applications**
+  ```sql
+  SELECT COUNT(id) FROM bank_loan_data WHERE MONTH(issue_date) = 12
+  SELECT COUNT(id) FROM bank_loan_data WHERE MONTH(issue_date) = 11
+  ```
 
-GOOD LOAN ISSUED
-Good Loan Percentage
-SELECT
-    (COUNT(CASE WHEN loan_status = 'Fully Paid' OR loan_status = 'Current' THEN id END) * 100.0) / 
-	COUNT(id) AS Good_Loan_Percentage
+- **Total Funded Amount**
+  ```sql
+  SELECT SUM(loan_amount) FROM bank_loan_data
+  ```
+
+- **Total Amount Received**
+  ```sql
+  SELECT SUM(total_payment) FROM bank_loan_data
+  ```
+
+- **Average Interest Rate & DTI**
+  ```sql
+  SELECT AVG(int_rate)*100 AS Avg_Int_Rate FROM bank_loan_data
+  SELECT AVG(dti)*100 AS Avg_DTI FROM bank_loan_data
+  ```
+
+---
+
+## ✅ Good vs. Bad Loan Segmentation
+
+- **Good Loan Percentage**
+  ```sql
+  SELECT (COUNT(CASE WHEN loan_status IN ('Fully Paid', 'Current') THEN id END) * 100.0) / COUNT(id) AS Good_Loan_Percentage FROM bank_loan_data
+  ```
+
+- **Bad Loan Percentage**
+  ```sql
+  SELECT (COUNT(CASE WHEN loan_status = 'Charged Off' THEN id END) * 100.0) / COUNT(id) AS Bad_Loan_Percentage FROM bank_loan_data
+  ```
+
+- **Good Loan Applications / Funded / Received**
+  ```sql
+  SELECT COUNT(id) FROM bank_loan_data WHERE loan_status IN ('Fully Paid', 'Current')
+  SELECT SUM(loan_amount) FROM bank_loan_data WHERE loan_status IN ('Fully Paid', 'Current')
+  SELECT SUM(total_payment) FROM bank_loan_data WHERE loan_status IN ('Fully Paid', 'Current')
+  ```
+
+- **Bad Loan Applications / Funded / Received**
+  ```sql
+  SELECT COUNT(id) FROM bank_loan_data WHERE loan_status = 'Charged Off'
+  SELECT SUM(loan_amount) FROM bank_loan_data WHERE loan_status = 'Charged Off'
+  SELECT SUM(total_payment) FROM bank_loan_data WHERE loan_status = 'Charged Off'
+  ```
+
+---
+
+## 📈 Loan Status Breakdown
+
+```sql
+SELECT loan_status, COUNT(id), SUM(total_payment), SUM(loan_amount), AVG(int_rate*100), AVG(dti*100)
 FROM bank_loan_data
- 
-Good Loan Applications
-SELECT COUNT(id) AS Good_Loan_Applications FROM bank_loan_data
-WHERE loan_status = 'Fully Paid' OR loan_status = 'Current'
- 
-Good Loan Funded Amount
-SELECT SUM(loan_amount) AS Good_Loan_Funded_amount FROM bank_loan_data
-WHERE loan_status = 'Fully Paid' OR loan_status = 'Current'
- 
-
-Good Loan Amount Received
-SELECT SUM(total_payment) AS Good_Loan_amount_received FROM bank_loan_data
-WHERE loan_status = 'Fully Paid' OR loan_status = 'Current'
- 
-
-BAD LOAN ISSUED
-Bad Loan Percentage
-SELECT
-    (COUNT(CASE WHEN loan_status = 'Charged Off' THEN id END) * 100.0) / 
-	COUNT(id) AS Bad_Loan_Percentage
-FROM bank_loan_data
- 
-Bad Loan Applications
-SELECT COUNT(id) AS Bad_Loan_Applications FROM bank_loan_data
-WHERE loan_status = 'Charged Off'
- 
-Bad Loan Funded Amount
-SELECT SUM(loan_amount) AS Bad_Loan_Funded_amount FROM bank_loan_data
-WHERE loan_status = 'Charged Off'
- 
-Bad Loan Amount Received
-SELECT SUM(total_payment) AS Bad_Loan_amount_received FROM bank_loan_data
-WHERE loan_status = 'Charged Off'
- 
-
-
-
-
-
-
-LOAN STATUS
-	SELECT
-        loan_status,
-        COUNT(id) AS LoanCount,
-        SUM(total_payment) AS Total_Amount_Received,
-        SUM(loan_amount) AS Total_Funded_Amount,
-        AVG(int_rate * 100) AS Interest_Rate,
-        AVG(dti * 100) AS DTI
-    FROM
-        bank_loan_data
-    GROUP BY
-        loan_status
- 
-
-SELECT 
-	loan_status, 
-	SUM(total_payment) AS MTD_Total_Amount_Received, 
-	SUM(loan_amount) AS MTD_Total_Funded_Amount 
-FROM bank_loan_data
-WHERE MONTH(issue_date) = 12 
 GROUP BY loan_status
- 
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-B.	BANK LOAN REPORT | OVERVIEW
-MONTH
-SELECT 
-	MONTH(issue_date) AS Month_Munber, 
-	DATENAME(MONTH, issue_date) AS Month_name, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
+```sql
+SELECT loan_status, SUM(total_payment), SUM(loan_amount)
 FROM bank_loan_data
-GROUP BY MONTH(issue_date), DATENAME(MONTH, issue_date)
-ORDER BY MONTH(issue_date)
- 
+WHERE MONTH(issue_date) = 12
+GROUP BY loan_status
+```
 
+---
 
+## 🗂️ Overview by Dimensions
 
+- **By Month**
+  ```sql
+  SELECT MONTH(issue_date), DATENAME(MONTH, issue_date), COUNT(id), SUM(loan_amount), SUM(total_payment)
+  FROM bank_loan_data
+  GROUP BY MONTH(issue_date), DATENAME(MONTH, issue_date)
+  ORDER BY MONTH(issue_date)
+  ```
 
+- **By State**
+  ```sql
+  SELECT address_state, COUNT(id), SUM(loan_amount), SUM(total_payment)
+  FROM bank_loan_data
+  GROUP BY address_state
+  ORDER BY address_state
+  ```
 
+- **By Term**
+  ```sql
+  SELECT term, COUNT(id), SUM(loan_amount), SUM(total_payment)
+  FROM bank_loan_data
+  GROUP BY term
+  ORDER BY term
+  ```
 
+- **By Employee Length**
+  ```sql
+  SELECT emp_length, COUNT(id), SUM(loan_amount), SUM(total_payment)
+  FROM bank_loan_data
+  GROUP BY emp_length
+  ORDER BY emp_length
+  ```
 
+- **By Purpose**
+  ```sql
+  SELECT purpose, COUNT(id), SUM(loan_amount), SUM(total_payment)
+  FROM bank_loan_data
+  GROUP BY purpose
+  ORDER BY purpose
+  ```
 
+- **By Home Ownership**
+  ```sql
+  SELECT home_ownership, COUNT(id), SUM(loan_amount), SUM(total_payment)
+  FROM bank_loan_data
+  GROUP BY home_ownership
+  ORDER BY home_ownership
+  ```
 
+---
 
+## 🔍 Filter Example – Grade A Loans
 
-
-
-STATE
-SELECT 
-	address_state AS State, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
-FROM bank_loan_data
-GROUP BY address_state
-ORDER BY address_state
- 
-
-TERM
-SELECT 
-	term AS Term, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
-FROM bank_loan_data
-GROUP BY term
-ORDER BY term
- 
-
-EMPLOYEE LENGTH
-SELECT 
-	emp_length AS Employee_Length, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
-FROM bank_loan_data
-GROUP BY emp_length
-ORDER BY emp_length
- 
-PURPOSE
-SELECT 
-	purpose AS PURPOSE, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
-FROM bank_loan_data
-GROUP BY purpose
-ORDER BY purpose
- 
-
-HOME OWNERSHIP
-SELECT 
-	home_ownership AS Home_Ownership, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
-FROM bank_loan_data
-GROUP BY home_ownership
-ORDER BY home_ownership
- 
-
-Note: We have applied multiple Filters on all the dashboards. You can check the results for the filters as well by modifying the query and comparing the results.
-For e.g
-See the results when we hit the Grade A in the filters for dashboards.
-SELECT 
-	purpose AS PURPOSE, 
-	COUNT(id) AS Total_Loan_Applications,
-	SUM(loan_amount) AS Total_Funded_Amount,
-	SUM(total_payment) AS Total_Amount_Received
+```sql
+SELECT purpose, COUNT(id), SUM(loan_amount), SUM(total_payment)
 FROM bank_loan_data
 WHERE grade = 'A'
 GROUP BY purpose
 ORDER BY purpose
+```
+
+---
+
+## 🛠️ Skills Demonstrated
+
+- Advanced SQL for KPI tracking and business rule logic  
+- Power BI dashboard design with filter-responsive queries  
+- Python for data cleaning and automation  
+- Financial domain modeling: loan risk, interest, DTI, repayment  
+- Data storytelling and stakeholder-ready documentation  
+- Modular query design for scalable analytics workflows  
+
+---
+
+## 📬 Contact
+
+**balanjineeyulu T**  
+📞 6360673989  
+📧 topanabalanjineeyulu743@gmail.com  
+💼 Data Analyst | SQL • Power BI • Python • Excel
+```
+
+---
+
